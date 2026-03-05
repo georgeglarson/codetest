@@ -49,14 +49,20 @@ function KeyboardViz({ output }: { output: string }) {
   const totalSteps = steps.current.length;
   const current = steps.current[stepIdx];
 
-  // Build the "typed so far" string
-  const typed = steps.current
-    .slice(0, stepIdx + 1)
-    .reduce((acc, s) => {
-      if (s.selected) return acc + s.selected;
-      if (s.isSpace) return acc + " ";
-      return acc;
-    }, "");
+  // Build the "typed so far" string and set of visited cells
+  const pastSteps = steps.current.slice(0, stepIdx + 1);
+  const typed = pastSteps.reduce((acc, st) => {
+    if (st.selected) return acc + st.selected;
+    if (st.isSpace) return acc + " ";
+    return acc;
+  }, "");
+
+  // Track which cells have been selected (not including current step)
+  const visitedCells = new Set<string>();
+  for (let i = 0; i < stepIdx; i++) {
+    const st = steps.current[i];
+    if (st.selected) visitedCells.add(`${st.row},${st.col}`);
+  }
 
   const stop = useCallback(() => {
     if (timerRef.current) {
@@ -139,11 +145,13 @@ function KeyboardViz({ output }: { output: string }) {
             {row.split("").map((ch, ci) => {
               const isCursor = current.row === ri && current.col === ci;
               const isJustSelected = isCursor && current.selected === ch;
+              const wasVisited = visitedCells.has(`${ri},${ci}`);
               return (
                 <div
                   key={ci}
                   style={{
                     ...s.cell,
+                    ...(wasVisited && !isCursor ? s.cellVisited : {}),
                     ...(isCursor ? s.cellCursor : {}),
                     ...(isJustSelected ? s.cellSelected : {}),
                   }}
@@ -396,6 +404,11 @@ const s = {
     fontSize: "16px",
     fontWeight: 600,
     transition: "all 0.12s ease",
+  },
+  cellVisited: {
+    background: "#1a2e3d",
+    borderColor: "#2d4a5c",
+    color: "#5eaac0",
   },
   cellCursor: {
     background: "#1e3a5f",
