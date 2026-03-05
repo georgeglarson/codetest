@@ -4,7 +4,7 @@ A Python solution for scripting cursor paths on a grid-based on-screen keyboard.
 
 ## Approach
 
-Builds a coordinate index from the keyboard layout, then computes the Manhattan distance path (U/D/L/R) between successive characters. The layout is data, not code — swapping to a different keyboard arrangement means changing a single list.
+Builds a coordinate index from the keyboard layout, then computes the Manhattan distance path (U/D/L/R) between successive characters. The layout is data, not code. Swapping to a different keyboard arrangement means changing a single list.
 
 ## Structure
 
@@ -36,6 +36,6 @@ make test
 
 ## Design Considerations
 
-- **Layout as data**: The keyboard grid is a plain list of strings — no hardcoded positions. Changing from alphanumeric to any other layout is a one-line change. The `build_index` function dynamically maps characters to coordinates from any grid shape.
+- **Layout as data**: The keyboard grid is a plain list of strings, no hardcoded positions. Changing from alphanumeric to any other layout is a one-line change. The `build_index` function dynamically maps characters to coordinates from any grid shape.
 - **Separation of concerns**: `keyboard.py` owns the layout, `navigator.py` owns the movement logic, `main.py` is pure I/O. Each has a single reason to change.
-- **Input flexibility**: The core functions accept strings and dicts — the file-reading is only in `main.py`. Switching from file to stream means changing only the driver, not the logic.
+- **Input flexibility**: The core functions accept strings and dicts. The file-reading is only in `main.py`. Switching from file to stream means changing only the driver, not the logic.

@@ -45,10 +45,10 @@ Without `--verbose`, output matches the spec format exactly (`3 quarters,1 dime,
 
 ### Flags
 
-- `--divisor N` — Change which transactions get randomized denominations (default: 3). If `owed` in cents is divisible by N, the change is randomized. Use `--divisor 0` to disable randomization entirely.
-- `--seed N` — Seed the random number generator for reproducible output. Useful for testing.
-- `--currency USD|EUR` — Select the currency denomination set (default: USD).
-- `--verbose` — Show transaction context alongside the change output. Labels random lines.
+- `--divisor N` changes which transactions get randomized denominations (default: 3). If `owed` in cents is divisible by N, the change is randomized. Use `--divisor 0` to disable randomization entirely.
+- `--seed N` seeds the random number generator for reproducible output. Useful for testing.
+- `--currency USD|EUR` selects the currency denomination set (default: USD).
+- `--verbose` shows transaction context alongside the change output. Labels random lines.
 
 ## The Problem
 
@@ -58,7 +58,7 @@ Without `--verbose`, output matches the spec format exactly (`3 quarters,1 dime,
 
 ### Integer cents everywhere
 
-All money is represented as `u32` cents. The string `"2.13"` is parsed via string manipulation into `213u32` — no floating-point arithmetic is ever used. This eliminates an entire class of rounding bugs (e.g., `0.1 + 0.2 != 0.3` in IEEE 754).
+All money is represented as `u32` cents. The string `"2.13"` is parsed via string manipulation into `213u32`, with no floating-point arithmetic anywhere. This eliminates an entire class of rounding bugs (e.g., `0.1 + 0.2 != 0.3` in IEEE 754).
 
 ### Strategy trait with concrete types
 
@@ -70,11 +70,11 @@ A `ChangeStrategy` trait defines the contract. `GreedyStrategy` minimizes denomi
 
 ### Injectable randomness
 
-`RandomStrategy<R: Rng>` is generic over its RNG source. Tests inject `StdRng::seed_from_u64()` for deterministic assertions. Production uses `StdRng::from_entropy()`. Zero-cost abstraction via monomorphization — no `Box<dyn Rng>`.
+`RandomStrategy<R: Rng>` is generic over its RNG source. Tests inject `StdRng::seed_from_u64()` for deterministic assertions. Production uses `StdRng::from_entropy()`. Zero-cost abstraction via monomorphization, no `Box<dyn Rng>`.
 
 ### No heavy dependencies
 
-CLI argument parsing is a 5-line generic function, not a 50KB dependency. The only runtime dependencies are `thiserror` (structured errors) and `rand` (randomization) — both are well-established, minimal crates.
+CLI argument parsing is a 5-line generic function, not a 50KB dependency. The only runtime dependencies are `thiserror` (structured errors) and `rand` (randomization), both well-established, minimal crates.
 
 ### Property-based testing
 
@@ -87,7 +87,7 @@ src/
   main.rs         CLI wiring: arg parsing, file I/O, exit codes
   lib.rs          Module re-exports
   error.rs        Error types with line numbers (thiserror)
-  currency.rs     Denomination definitions — USD, EUR configs
+  currency.rs     Denomination definitions (USD, EUR configs)
   parse.rs        String → cents conversion, line → Transaction
   strategy/
     mod.rs        ChangeStrategy trait, Breakdown type alias
@@ -104,7 +104,7 @@ tests/
 
 > What might happen if the client needs to change the random divisor?
 
-Pass `--divisor N` at the command line. The divisor flows through `rules::make_change_for` as a parameter — no code changes needed. Setting `--divisor 0` disables randomization entirely.
+Pass `--divisor N` at the command line. The divisor flows through `rules::make_change_for` as a parameter, so no code changes are needed. Setting `--divisor 0` disables randomization entirely.
 
 > What might happen if the client needs to add another special case (like the random twist)?
 
@@ -112,7 +112,7 @@ Add a new strategy struct implementing `ChangeStrategy` (one file), then add a b
 
 > What might happen if sales closes a new client in France?
 
-Pass `--currency EUR`. The EUR denomination table is already defined and wired into the CLI. Try it: `cargo run -- sample_eur.txt --currency EUR`. The denomination table drives all formatting — singular/plural names, values, everything. One caveat: France uses commas as decimal separators (`2,13` not `2.13`), which conflicts with the comma-delimited input format. A real deployment would need a configurable delimiter or a different input format (e.g., TSV, JSON).
+Pass `--currency EUR`. The EUR denomination table is already defined and wired into the CLI. Try it: `cargo run -- sample_eur.txt --currency EUR`. The denomination table drives all formatting (singular/plural names, values, everything). One caveat: France uses commas as decimal separators (`2,13` not `2.13`), which conflicts with the comma-delimited input format. A real deployment would need a configurable delimiter or a different input format (e.g., TSV, JSON).
 
 ## Testing
 

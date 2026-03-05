@@ -4,7 +4,7 @@ A Perl solution for translating between Morse code and English.
 
 ## Approach
 
-Splits input on the delimiter hierarchy — `||||` for word boundaries, `||` for letter boundaries — then maps each Morse sequence through a lookup table. The encoder reverses the process. Clean string splitting, no regex needed for the core logic.
+Splits input on the delimiter hierarchy (`||||` for word boundaries, `||` for letter boundaries), then maps each Morse sequence through a lookup table. The encoder reverses the process. Clean string splitting, no regex needed for the core logic.
 
 ## Structure
 
@@ -42,6 +42,6 @@ make test
 
 ## Design Considerations
 
-- **Alphabet isolation**: The lookup table is a standalone module — swapping to a different encoding (e.g., NATO phonetic) means replacing one file.
+- **Alphabet isolation**: The lookup table is a standalone module. Swapping to a different encoding (e.g., NATO phonetic) means replacing one file.
 - **Bidirectional symmetry**: Encoder and decoder are full mirrors of each other, both backed by the same alphabet. `decode(encode(text)) == text` is verified for every character.
-- **Extensibility**: The delimiter scheme is handled in the encoder/decoder modules, separate from the alphabet — changing the wire format doesn't touch the character mappings.
+- **Extensibility**: The delimiter scheme is handled in the encoder/decoder modules, separate from the alphabet. Changing the wire format doesn't touch the character mappings.
