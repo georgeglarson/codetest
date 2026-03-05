@@ -1,12 +1,13 @@
 import type { Tab, TabId } from "../types/index.js";
 
 const TABS: Tab[] = [
-  { id: "reviews", label: "Restaurant Reviews" },
+  { id: "overview", label: "Overview" },
   { id: "cash-register", label: "Cash Register" },
   { id: "missing-number", label: "Missing Number" },
   { id: "morse-code", label: "Morse Code" },
   { id: "on-screen-keyboard", label: "On-Screen Keyboard" },
   { id: "gilded-rose", label: "Gilded Rose" },
+  { id: "reviews", label: "Restaurant Reviews" },
 ];
 
 interface Props {

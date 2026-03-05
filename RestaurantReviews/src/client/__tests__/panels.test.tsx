@@ -55,14 +55,14 @@ describe("TabNav accessibility", () => {
     mockInitialLoads();
     render(<App />);
     const tabs = screen.getAllByRole("tab");
-    expect(tabs).toHaveLength(6);
+    expect(tabs).toHaveLength(7);
   });
 
   it("marks active tab with aria-selected=true", () => {
     mockInitialLoads();
     render(<App />);
     const tabs = screen.getAllByRole("tab");
-    const activeTab = tabs.find((t) => t.textContent === "Restaurant Reviews");
+    const activeTab = tabs.find((t) => t.textContent === "Overview");
     expect(activeTab).toHaveAttribute("aria-selected", "true");
   });
 
@@ -70,7 +70,7 @@ describe("TabNav accessibility", () => {
     mockInitialLoads();
     render(<App />);
     const tabs = screen.getAllByRole("tab");
-    const inactiveTabs = tabs.filter((t) => t.textContent !== "Restaurant Reviews");
+    const inactiveTabs = tabs.filter((t) => t.textContent !== "Overview");
     for (const tab of inactiveTabs) {
       expect(tab).toHaveAttribute("aria-selected", "false");
     }
@@ -85,8 +85,8 @@ describe("TabNav accessibility", () => {
     fireEvent.click(cashTab);
     expect(cashTab).toHaveAttribute("aria-selected", "true");
 
-    const reviewsTab = screen.getByRole("tab", { name: "Restaurant Reviews" });
-    expect(reviewsTab).toHaveAttribute("aria-selected", "false");
+    const overviewTab = screen.getByRole("tab", { name: "Overview" });
+    expect(overviewTab).toHaveAttribute("aria-selected", "false");
   });
 });
 
@@ -166,6 +166,11 @@ describe("MorseCodePanel mode switching", () => {
 
 // ── ReviewsPanel — user table ───────────────────────────────────────
 
+/** Navigate from Overview to Restaurant Reviews tab */
+function goToReviews() {
+  fireEvent.click(screen.getByText("Restaurant Reviews", { selector: "button[role='tab']" }));
+}
+
 describe("ReviewsPanel — user table", () => {
   it("renders users in a data table on load", async () => {
     mockInitialLoads([
@@ -173,6 +178,7 @@ describe("ReviewsPanel — user table", () => {
       { id: 2, name: "Bob", email: "bob@example.com", blocked: 1, created_at: "2024-01-01" },
     ]);
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText("Alice")).toBeInTheDocument();
@@ -185,6 +191,7 @@ describe("ReviewsPanel — user table", () => {
   it("shows empty state when no users", async () => {
     mockInitialLoads();
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText(/No users yet/)).toBeInTheDocument();
@@ -201,6 +208,7 @@ describe("ReviewsPanel — user table", () => {
     };
     mockInitialLoads([alice]);
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText("Alice")).toBeInTheDocument();
@@ -239,6 +247,7 @@ describe("ReviewsPanel — user table", () => {
       { id: 1, name: "Alice", email: "alice@example.com", blocked: 0, created_at: "2024-01-01" },
     ]);
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText("Alice")).toBeInTheDocument();
@@ -262,6 +271,7 @@ describe("ReviewsPanel — user table", () => {
     };
     mockInitialLoads([alice]);
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText("Block")).toBeInTheDocument();
@@ -295,6 +305,7 @@ describe("ReviewsPanel — user table", () => {
     };
     mockInitialLoads([alice]);
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText("Alice")).toBeInTheDocument();
@@ -341,6 +352,7 @@ describe("ReviewsPanel — restaurant table", () => {
       ]
     );
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText("Pizza Palace")).toBeInTheDocument();
@@ -351,6 +363,7 @@ describe("ReviewsPanel — restaurant table", () => {
   it("shows empty state when no restaurants", async () => {
     mockInitialLoads();
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText(/No restaurants/)).toBeInTheDocument();
@@ -366,6 +379,7 @@ describe("ReviewsPanel — restaurant table", () => {
       ]
     );
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText("Place A")).toBeInTheDocument();
@@ -382,6 +396,7 @@ describe("ReviewsPanel — restaurant table", () => {
     const restaurant = { id: 1, name: "Pizza", city: "NYC", cuisine: "", created_at: "2024-01-01" };
     mockInitialLoads([], [restaurant]);
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText("Pizza")).toBeInTheDocument();
@@ -443,6 +458,7 @@ describe("ReviewsPanel — review table", () => {
       ]
     );
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       // Verify names appear (not just IDs)
@@ -457,6 +473,7 @@ describe("ReviewsPanel — review table", () => {
   it("shows empty state when no reviews", async () => {
     mockInitialLoads();
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText(/No reviews yet/)).toBeInTheDocument();
@@ -480,6 +497,7 @@ describe("ReviewsPanel — review table", () => {
       ]
     );
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       // User picker
@@ -510,6 +528,7 @@ describe("ReviewsPanel — review table", () => {
     ];
     mockInitialLoads(users, restaurants);
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByLabelText("Select user")).toBeInTheDocument();
@@ -562,6 +581,7 @@ describe("ReviewsPanel — review table", () => {
       ]
     );
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByLabelText("Select user")).toBeInTheDocument();
@@ -618,6 +638,7 @@ describe("ReviewsPanel — review table", () => {
     };
     mockInitialLoads([], [], [review]);
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText("OK")).toBeInTheDocument();
@@ -665,6 +686,7 @@ describe("ReviewsPanel — review table", () => {
     };
     mockInitialLoads([], [], [review]);
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText("Great!")).toBeInTheDocument();
@@ -834,6 +856,7 @@ describe("ReviewsPanel — cross-section refresh", () => {
   it("creating a user updates review section dropdown", async () => {
     mockInitialLoads();
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalled();

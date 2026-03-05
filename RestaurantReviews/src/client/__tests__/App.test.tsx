@@ -54,52 +54,53 @@ describe("App", () => {
   it("renders tab navigation", () => {
     mockInitialLoads();
     render(<App />);
-    expect(screen.getByText("Restaurant Reviews", { selector: "button" })).toBeInTheDocument();
-    expect(screen.getByText("Cash Register", { selector: "button" })).toBeInTheDocument();
-    expect(screen.getByText("Missing Number", { selector: "button" })).toBeInTheDocument();
-    expect(screen.getByText("Morse Code", { selector: "button" })).toBeInTheDocument();
-    expect(screen.getByText("On-Screen Keyboard", { selector: "button" })).toBeInTheDocument();
-    expect(screen.getByText("Gilded Rose", { selector: "button" })).toBeInTheDocument();
+    expect(screen.getByText("Overview", { selector: "button[role='tab']" })).toBeInTheDocument();
+    expect(screen.getByText("Cash Register", { selector: "button[role='tab']" })).toBeInTheDocument();
+    expect(screen.getByText("Missing Number", { selector: "button[role='tab']" })).toBeInTheDocument();
+    expect(screen.getByText("Morse Code", { selector: "button[role='tab']" })).toBeInTheDocument();
+    expect(screen.getByText("On-Screen Keyboard", { selector: "button[role='tab']" })).toBeInTheDocument();
+    expect(screen.getByText("Gilded Rose", { selector: "button[role='tab']" })).toBeInTheDocument();
+    expect(screen.getByText("Restaurant Reviews", { selector: "button[role='tab']" })).toBeInTheDocument();
   });
 
-  it("shows Restaurant Reviews panel by default", () => {
+  it("shows Overview panel by default", () => {
     mockInitialLoads();
     render(<App />);
-    expect(screen.getByText("Restaurant Reviews", { selector: "h2" })).toBeInTheDocument();
+    expect(screen.getByText("Overview", { selector: "h2" })).toBeInTheDocument();
   });
 
   it("switches to Cash Register panel", async () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("Cash Register", { selector: "button" }));
+    fireEvent.click(screen.getByText("Cash Register", { selector: "button[role='tab']" }));
     expect(screen.getByText("Cash Register", { selector: "h2" })).toBeInTheDocument();
   });
 
   it("switches to Missing Number panel", async () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("Missing Number", { selector: "button" }));
+    fireEvent.click(screen.getByText("Missing Number", { selector: "button[role='tab']" }));
     expect(screen.getByText("Missing Number", { selector: "h2" })).toBeInTheDocument();
   });
 
   it("switches to Morse Code panel", async () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("Morse Code", { selector: "button" }));
+    fireEvent.click(screen.getByText("Morse Code", { selector: "button[role='tab']" }));
     expect(screen.getByText("Morse Code", { selector: "h2" })).toBeInTheDocument();
   });
 
   it("switches to On-Screen Keyboard panel", async () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("On-Screen Keyboard", { selector: "button" }));
+    fireEvent.click(screen.getByText("On-Screen Keyboard", { selector: "button[role='tab']" }));
     expect(screen.getByText("On-Screen Keyboard", { selector: "h2" })).toBeInTheDocument();
   });
 
   it("switches to Gilded Rose panel", async () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("Gilded Rose", { selector: "button" }));
+    fireEvent.click(screen.getByText("Gilded Rose", { selector: "button[role='tab']" }));
     expect(screen.getByText("Gilded Rose", { selector: "h2" })).toBeInTheDocument();
   });
 });
@@ -110,7 +111,7 @@ describe("CashRegisterPanel", () => {
   it("renders structured inputs and Make Change button", () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("Cash Register", { selector: "button" }));
+    fireEvent.click(screen.getByText("Cash Register", { selector: "button[role='tab']" }));
     // Has dollar amount inputs and the action button
     expect(screen.getByText("Make Change")).toBeInTheDocument();
     expect(screen.getByText("+ Add")).toBeInTheDocument();
@@ -121,7 +122,7 @@ describe("CashRegisterPanel", () => {
   it("displays parsed change output on successful run", async () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("Cash Register", { selector: "button" }));
+    fireEvent.click(screen.getByText("Cash Register", { selector: "button[role='tab']" }));
     mockFetch.mockReturnValueOnce(
       jsonResponse({
         output: "3 quarters,1 dime,3 pennies\n3 pennies\n1 dollar,1 quarter,4 dimes,2 pennies",
@@ -139,7 +140,7 @@ describe("CashRegisterPanel", () => {
   it("displays error on failure", async () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("Cash Register", { selector: "button" }));
+    fireEvent.click(screen.getByText("Cash Register", { selector: "button[role='tab']" }));
     mockFetch.mockReturnValueOnce(jsonResponse({ error: "exercise failed" }, 422));
 
     fireEvent.click(screen.getByText("Make Change"));
@@ -154,7 +155,7 @@ describe("MissingNumberPanel", () => {
   it("renders and runs", async () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("Missing Number", { selector: "button" }));
+    fireEvent.click(screen.getByText("Missing Number", { selector: "button[role='tab']" }));
     mockFetch.mockReturnValueOnce(jsonResponse({ output: "3" }));
 
     fireEvent.click(screen.getByText("Find It"));
@@ -169,7 +170,7 @@ describe("MorseCodePanel", () => {
   it("has Text to Morse / Morse to Text toggle", () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("Morse Code", { selector: "button" }));
+    fireEvent.click(screen.getByText("Morse Code", { selector: "button[role='tab']" }));
     expect(screen.getByText("Text to Morse")).toBeInTheDocument();
     expect(screen.getByText("Morse to Text")).toBeInTheDocument();
   });
@@ -177,7 +178,7 @@ describe("MorseCodePanel", () => {
   it("converts text to morse", async () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("Morse Code", { selector: "button" }));
+    fireEvent.click(screen.getByText("Morse Code", { selector: "button[role='tab']" }));
     mockFetch.mockReturnValueOnce(jsonResponse({ output: ".... . .-.. .-.. ---" }));
 
     const textarea = screen.getByPlaceholderText("HELLO WORLD");
@@ -192,7 +193,7 @@ describe("MorseCodePanel", () => {
   it("switches to decode mode", async () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("Morse Code", { selector: "button" }));
+    fireEvent.click(screen.getByText("Morse Code", { selector: "button[role='tab']" }));
     fireEvent.click(screen.getByText("Morse to Text"));
     expect(screen.getByPlaceholderText(/\.\.\.\./)).toBeInTheDocument();
   });
@@ -202,7 +203,7 @@ describe("OnScreenKeyboardPanel", () => {
   it("renders and runs", async () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("On-Screen Keyboard", { selector: "button" }));
+    fireEvent.click(screen.getByText("On-Screen Keyboard", { selector: "button[role='tab']" }));
     mockFetch.mockReturnValueOnce(jsonResponse({ output: "D,R,R,R,S,U,L,L,L,S" }));
 
     fireEvent.click(screen.getByText("Spell It"));
@@ -217,14 +218,14 @@ describe("GildedRosePanel", () => {
   it("renders start simulation form", () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("Gilded Rose", { selector: "button" }));
+    fireEvent.click(screen.getByText("Gilded Rose", { selector: "button[role='tab']" }));
     expect(screen.getByText("Start Simulation")).toBeInTheDocument();
   });
 
   it("starts a session and shows day controls", async () => {
     mockInitialLoads();
     render(<App />);
-    fireEvent.click(screen.getByText("Gilded Rose", { selector: "button" }));
+    fireEvent.click(screen.getByText("Gilded Rose", { selector: "button[role='tab']" }));
     mockFetch
       .mockReturnValueOnce(jsonResponse({ sessionId: "test-123", day: 0 }))
       .mockReturnValueOnce(
@@ -245,10 +246,16 @@ describe("GildedRosePanel", () => {
 
 // ── Reviews Panel ────────────────────────────────────────────────────
 
+/** Navigate from Overview to Restaurant Reviews tab */
+function goToReviews() {
+  fireEvent.click(screen.getByText("Restaurant Reviews", { selector: "button[role='tab']" }));
+}
+
 describe("ReviewsPanel", () => {
   it("renders user creation form", () => {
     mockInitialLoads();
     render(<App />);
+    goToReviews();
     expect(screen.getAllByPlaceholderText("Name").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByPlaceholderText("Email")).toBeInTheDocument();
     expect(screen.getByText("Create User")).toBeInTheDocument();
@@ -257,6 +264,7 @@ describe("ReviewsPanel", () => {
   it("renders restaurant creation form", () => {
     mockInitialLoads();
     render(<App />);
+    goToReviews();
     expect(screen.getByPlaceholderText("City")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Cuisine (optional)")).toBeInTheDocument();
   });
@@ -271,6 +279,7 @@ describe("ReviewsPanel", () => {
     };
     mockInitialLoads();
     render(<App />);
+    goToReviews();
 
     // Wait for initial load
     await waitFor(() => {
@@ -298,6 +307,7 @@ describe("ReviewsPanel", () => {
   it("displays error when user creation fails", async () => {
     mockInitialLoads();
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalled();
@@ -330,6 +340,7 @@ describe("ReviewsPanel", () => {
     };
     mockInitialLoads();
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalled();
@@ -393,6 +404,7 @@ describe("ReviewsPanel", () => {
       ]
     );
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       // Alice appears in user table + review table
@@ -421,6 +433,7 @@ describe("ReviewsPanel", () => {
       ]
     );
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText("Bob")).toBeInTheDocument();
@@ -449,6 +462,7 @@ describe("ReviewsPanel", () => {
       ]
     );
     render(<App />);
+    goToReviews();
 
     await waitFor(() => {
       expect(screen.getByText("Place A")).toBeInTheDocument();

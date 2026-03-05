@@ -29,12 +29,13 @@ export interface ReviewWithNames extends Review {
 }
 
 export type TabId =
-  | "reviews"
+  | "overview"
   | "cash-register"
   | "missing-number"
   | "morse-code"
   | "on-screen-keyboard"
-  | "gilded-rose";
+  | "gilded-rose"
+  | "reviews";
 
 export interface Tab {
   id: TabId;

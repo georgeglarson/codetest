@@ -31,10 +31,11 @@ export function ReviewsPanel() {
           demos.
         </ContextBox.Section>
         <ContextBox.Section heading="Testing">
-          <Stat>346 tests</Stat> &mdash; 46 model tests (CRUD operations, FK constraints, email
-          uniqueness), 103 API route tests (all HTTP verbs, validation, 404/409 error paths), and
-          197 client tests (rendering, inline edit flows, entity pickers, cross-section refresh,
-          Morse audio playback, and all exercise panel integration).
+          <Stat>371 tests</Stat> &mdash; 46 model tests (CRUD operations, FK constraints, email
+          uniqueness), 103 API route tests (all HTTP verbs, validation, 404/409 error paths), 133
+          client tests (rendering, inline edit flows, entity pickers, cross-section refresh,
+          city filtering), plus 89 tests covering the other 5 exercise panels and their
+          visualizers.
         </ContextBox.Section>
       </ContextBox>
 

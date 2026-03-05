@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import type { TabId } from "./types/index.js";
 import { TabNav } from "./components/TabNav.js";
+import { OverviewPanel } from "./components/OverviewPanel.js";
 import { ReviewsPanel } from "./components/reviews/ReviewsPanel.js";
 import { CashRegisterPanel } from "./components/exercises/CashRegisterPanel.js";
 import { MissingNumberPanel } from "./components/exercises/MissingNumberPanel.js";
@@ -8,18 +9,17 @@ import { MorseCodePanel } from "./components/exercises/MorseCodePanel.js";
 import { OnScreenKeyboardPanel } from "./components/exercises/OnScreenKeyboardPanel.js";
 import { GildedRosePanel } from "./components/exercises/GildedRosePanel.js";
 
-const PANELS: Record<TabId, React.ComponentType> = {
-  reviews: ReviewsPanel,
+const PANELS: Record<Exclude<TabId, "overview">, React.ComponentType> = {
   "cash-register": CashRegisterPanel,
   "missing-number": MissingNumberPanel,
   "morse-code": MorseCodePanel,
   "on-screen-keyboard": OnScreenKeyboardPanel,
   "gilded-rose": GildedRosePanel,
+  reviews: ReviewsPanel,
 };
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<TabId>("reviews");
-  const Panel = PANELS[activeTab];
+  const [activeTab, setActiveTab] = useState<TabId>("overview");
 
   return (
     <div style={styles.shell}>
@@ -43,7 +43,11 @@ export function App() {
       </header>
       <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
       <main style={styles.main}>
-        <Panel />
+        {activeTab === "overview" ? (
+          <OverviewPanel onNavigate={setActiveTab} />
+        ) : (
+          React.createElement(PANELS[activeTab])
+        )}
       </main>
     </div>
   );
