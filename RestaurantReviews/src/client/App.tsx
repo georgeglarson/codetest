@@ -26,7 +26,7 @@ export function App() {
       <header style={styles.header}>
         <div style={styles.headerLeft}>
           <h1 style={styles.h1}>TrueFit Code Challenge</h1>
-          <span style={styles.subtitle}>6 exercises &middot; 6 languages &middot; 830+ tests</span>
+          <span style={styles.subtitle}>6 exercises &middot; 6 languages &middot; 960+ tests</span>
         </div>
         <a
           href="https://github.com/georgeglarson/truefit"

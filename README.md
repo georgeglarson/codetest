@@ -8,12 +8,12 @@
 
 | Exercise | Language | Why This Language | Tests |
 |----------|----------|-------------------|-------|
-| [CashRegister](./CashRegister) | **Rust** | Financial calculations demand zero-cost abstractions and type safety. Integer-cent arithmetic eliminates floating-point rounding bugs entirely. The trait system maps naturally to the strategy pattern the problem calls for. | 74 |
-| [MissingNumber](./MissingNumber) | **Zig** | A tight algorithmic problem suited to a systems language. Zig's explicit allocator model and comptime features show well on small, performance-sensitive code. Demonstrates range beyond Rust while staying in the systems tier. | 46 |
-| [MorseCode](./MorseCode) | **Perl** | A text-processing problem at its core — splitting on delimiters and mapping through a lookup table. Perl is *the* language for this domain, and using it signals that language choice is driven by fit, not comfort zone. | 195 |
-| [OnScreenKeyboard](./OnScreenKeyboard) | **Python** | If this were production code, it would be scripting device input on a DVR or smart TV — a space where Python dominates. Clean data modeling (layout as a list, index as a dict) makes the solution readable and extensible. | 73 |
-| [GildedRose](./GildedRose) | **Go** | An OOP/business logic problem centered on polymorphism and rule engines. Go's interface system is a natural fit — each item category implements a single `Updater` interface, and the registry pattern makes new rules a one-file addition. Go's simplicity forces clean design without hiding behind language features. | 75 |
-| [RestaurantReviews](./RestaurantReviews) | **TypeScript/React** | TrueFit's core stack — they maintain the `bach` React composition library and a React-heavy open source portfolio. The most substantial exercise doubles as a unified control panel integrating all 5 other exercises as live panels. | 277 |
+| [CashRegister](./CashRegister) | **Rust** | Financial calculations demand zero-cost abstractions and type safety. Integer-cent arithmetic eliminates floating-point rounding bugs entirely. The trait system maps naturally to the strategy pattern the problem calls for. | 94 |
+| [MissingNumber](./MissingNumber) | **Zig** | A tight algorithmic problem suited to a systems language. Zig's explicit allocator model and comptime features show well on small, performance-sensitive code. Demonstrates range beyond Rust while staying in the systems tier. | 70 |
+| [MorseCode](./MorseCode) | **Perl** | A text-processing problem at its core — splitting on delimiters and mapping through a lookup table. Perl is *the* language for this domain, and using it signals that language choice is driven by fit, not comfort zone. | 232 |
+| [OnScreenKeyboard](./OnScreenKeyboard) | **Python** | If this were production code, it would be scripting device input on a DVR or smart TV — a space where Python dominates. Clean data modeling (layout as a list, index as a dict) makes the solution readable and extensible. | 94 |
+| [GildedRose](./GildedRose) | **Go** | An OOP/business logic problem centered on polymorphism and rule engines. Go's interface system is a natural fit — each item category implements a single `Updater` interface, and the registry pattern makes new rules a one-file addition. Go's simplicity forces clean design without hiding behind language features. | 107 |
+| [RestaurantReviews](./RestaurantReviews) | **TypeScript/React** | TrueFit's core stack — they maintain the `bach` React composition library and a React-heavy open source portfolio. The most substantial exercise doubles as a unified control panel integrating all 5 other exercises as live panels. | 371 |
 
 ## Prerequisites
 

@@ -25,7 +25,7 @@ A full-stack TypeScript/React application that implements the RestaurantReviews 
 ## Quick Start
 
 ```sh
-make test    # 346 tests (server + client)
+make test    # 371 tests (server + client)
 make run     # builds and starts Express on http://localhost:3000
 make dev     # dev mode: Express on :3000, Vite HMR on :5173
 ```
