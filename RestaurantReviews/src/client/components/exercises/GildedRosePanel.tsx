@@ -26,7 +26,18 @@ export function GildedRosePanel() {
     if (result) {
       setSessionId(result.sessionId);
       setDay(result.day);
-      setLog(["Session started. Try: list, next, item <name>, trash, help"]);
+      setLog([
+        "Session started — inventory loaded.",
+        "",
+        "Commands:",
+        "  list          Show all items with SellIn and Quality",
+        "  next          Advance one day (items update)",
+        "  item <name>   Show a single item (exact name)",
+        "  trash         Show items that hit Quality 0",
+        "  help          Show commands",
+        "",
+        "Try 'list' to see your inventory, then 'next' to advance a day.",
+      ]);
     }
   };
 
@@ -54,12 +65,29 @@ export function GildedRosePanel() {
     <div style={styles.panel}>
       <h2 style={styles.title}>Gilded Rose</h2>
       <p style={styles.desc}>
-        Interactive inventory management REPL. Start a session with inventory
-        CSV, then issue commands.
+        A shop inventory simulator. Items degrade (or improve) in Quality each
+        day according to category rules. Load an inventory, then step through
+        days to watch the rules play out.
       </p>
 
       {!sessionId ? (
         <>
+          <div style={styles.rulesBox}>
+            <div style={styles.rulesTitle}>Category Rules</div>
+            <div style={styles.rulesGrid}>
+              <div><strong style={styles.cat}>Normal</strong> &mdash; Quality drops by 1/day, doubles after SellIn expires</div>
+              <div><strong style={styles.cat}>Aged</strong> &mdash; Quality <em>increases</em> by 1/day (better with age)</div>
+              <div><strong style={styles.cat}>Legendary</strong> &mdash; Never sold, never degrades (Quality stays 80)</div>
+              <div><strong style={styles.cat}>BackstagePass</strong> &mdash; Quality rises as the concert nears: +2 at 10 days, +3 at 5 days, drops to 0 after</div>
+              <div><strong style={styles.cat}>Conjured</strong> &mdash; Degrades twice as fast as Normal items</div>
+            </div>
+            <div style={{ marginTop: "8px", color: "#64748b", fontSize: "12px" }}>
+              Quality is always 0&ndash;50 (except Legendary at 80).
+            </div>
+          </div>
+          <div style={styles.csvLabel}>
+            Inventory CSV &mdash; one item per line: <code style={styles.code}>Name,Category,SellIn,Quality</code>
+          </div>
           <textarea
             value={inventory}
             onChange={(e) => setInventory(e.target.value)}
@@ -128,6 +156,42 @@ const styles = {
   panel: { padding: "24px", maxWidth: "800px" },
   title: { fontSize: "24px", marginBottom: "8px", color: "#f1f5f9" },
   desc: { color: "#94a3b8", marginBottom: "16px", fontSize: "14px" },
+  rulesBox: {
+    padding: "12px 16px",
+    background: "#1e293b",
+    border: "1px solid #334155",
+    borderRadius: "6px",
+    marginBottom: "16px",
+    fontSize: "13px",
+    color: "#cbd5e1",
+    lineHeight: "1.6",
+  },
+  rulesTitle: {
+    fontSize: "13px",
+    fontWeight: 600,
+    color: "#94a3b8",
+    textTransform: "uppercase" as const,
+    letterSpacing: "0.05em",
+    marginBottom: "6px",
+  },
+  rulesGrid: {
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "4px",
+  },
+  cat: { color: "#38bdf8" },
+  csvLabel: {
+    fontSize: "13px",
+    color: "#94a3b8",
+    marginBottom: "6px",
+  },
+  code: {
+    padding: "2px 6px",
+    background: "#0f172a",
+    borderRadius: "4px",
+    fontSize: "12px",
+    color: "#e2e8f0",
+  },
   textarea: {
     width: "100%",
     padding: "12px",
