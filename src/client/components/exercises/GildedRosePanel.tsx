@@ -149,17 +149,17 @@ export function GildedRosePanel() {
       <ContextBox>
         <ContextBox.Section heading="Problem">
           Implement a system where shop inventory items degrade (or improve) in Quality each day
-          according to category-specific rules &mdash; 5 item types, each with unique aging
+          according to category-specific rules across 5 item types, each with unique aging
           behavior.
         </ContextBox.Section>
         <ContextBox.Section heading="Solution">
-          <Lang>Go</Lang> &mdash; Go's interface system is a natural fit. Each item category
+          <Lang>Go</Lang>. Go's interface system is a natural fit. Each item category
           implements a single <Code>Updater</Code> interface, and a registry pattern makes adding
           new item rules a one-file addition. Go's simplicity forces clean design without hiding
           behind language features.
         </ContextBox.Section>
         <ContextBox.Section heading="Testing">
-          <Stat>82 tests</Stat> &mdash; covers all 5 category rules (Normal, Aged, Legendary,
+          <Stat>82 tests</Stat> covering all 5 category rules (Normal, Aged, Legendary,
           BackstagePass, Conjured), boundary conditions at Quality 0 and 50, SellIn expiration
           behavior, multi-day progression, and edge cases like negative SellIn values.
         </ContextBox.Section>
@@ -192,7 +192,7 @@ export function GildedRosePanel() {
             </div>
           </div>
           <div style={styles.csvLabel}>
-            Inventory CSV &mdash; one item per line:{" "}
+            Inventory CSV, one item per line:{" "}
             <code style={styles.code}>Name,Category,SellIn,Quality</code>
           </div>
           <textarea

@@ -193,7 +193,7 @@ function KeyboardViz({ output }: { output: string }) {
 
       {/* Current move indicator */}
       <div style={styles.moveIndicator}>
-        {current.move === "start" && "Cursor at A — ready"}
+        {current.move === "start" && "Cursor at A, ready"}
         {current.move === "U" && "\u2191 Up"}
         {current.move === "D" && "\u2193 Down"}
         {current.move === "L" && "\u2190 Left"}
@@ -306,13 +306,13 @@ export function OnScreenKeyboardPanel() {
           D, L, R, S) for each input word.
         </ContextBox.Section>
         <ContextBox.Section heading="Solution">
-          <Lang>Python</Lang> &mdash; If this were production code, it would be scripting device
-          input on a smart TV &mdash; a space where Python dominates. The layout is modeled as data
+          <Lang>Python</Lang>. If this were production code, it would be scripting device
+          input on a smart TV, a space where Python dominates. The layout is modeled as data
           (a list of row strings) with an index dict for O(1) character lookups. Manhattan distance
           cursor movement keeps the algorithm clean and extensible to different keyboard layouts.
         </ContextBox.Section>
         <ContextBox.Section heading="Testing">
-          <Stat>74 tests</Stat> &mdash; covers single characters, full words, phrases with spaces,
+          <Stat>74 tests</Stat> covering single characters, full words, phrases with spaces,
           wraparound edge cases, every character on the keyboard, multi-word input, and output
           format verification. Tests validate both the move sequence and final cursor position.
         </ContextBox.Section>

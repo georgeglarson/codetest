@@ -140,7 +140,7 @@ export function UserSection({ refreshKey, onMutate }: Props) {
           {users.length === 0 && !listApi.loading && (
             <tr>
               <td colSpan={4} style={styles.emptyRow}>
-                No users yet &mdash; create one above to get started
+                No users yet. Create one above to get started.
               </td>
             </tr>
           )}

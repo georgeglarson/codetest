@@ -80,14 +80,14 @@ export function CashRegisterPanel() {
           optimal change.
         </ContextBox.Section>
         <ContextBox.Section heading="Solution">
-          <Lang>Rust</Lang> &mdash; Financial calculations demand zero-cost abstractions and type
+          <Lang>Rust</Lang>. Financial calculations demand zero-cost abstractions and type
           safety. All arithmetic uses integer cents to eliminate floating-point rounding bugs
           entirely. A trait-based strategy pattern (<Code>ChangeStrategy</Code>) cleanly separates
           the greedy optimal algorithm from the randomized path, making new strategies a one-file
           addition.
         </ContextBox.Section>
         <ContextBox.Section heading="Testing">
-          <Stat>79 tests</Stat> &mdash; covers exact change, overpayment with every denomination,
+          <Stat>79 tests</Stat> covering exact change, overpayment with every denomination,
           the divisible-by-3 randomization path, penny-level precision, large amounts, zero-change
           edge cases, and round-trip verification that computed change always sums back to the
           correct amount.

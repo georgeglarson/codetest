@@ -39,18 +39,18 @@ export function MorseCodePanel() {
 
       <ContextBox>
         <ContextBox.Section heading="Problem">
-          Build a two-way Morse code translator &mdash; text to Morse and back again &mdash;
+          Build a two-way Morse code translator (text to Morse and back again),
           including multi-word messages with proper delimiter hierarchy.
         </ContextBox.Section>
         <ContextBox.Section heading="Solution">
-          <Lang>Perl</Lang> &mdash; A text-processing problem at its core &mdash; splitting on
+          <Lang>Perl</Lang>. A text-processing problem at its core: splitting on
           delimiters and mapping through a lookup table. Perl is <em>the</em> language for this
           domain. The solution uses a three-tier delimiter hierarchy (dot for signals, pipe-pair for
           letters, quad-pipe for words) and builds both encoder and decoder from a single
           authoritative lookup table.
         </ContextBox.Section>
         <ContextBox.Section heading="Testing">
-          <Stat>200 tests</Stat> &mdash; covers every letter A&ndash;Z, digits 0&ndash;9, all
+          <Stat>200 tests</Stat> covering every letter A&ndash;Z, digits 0&ndash;9, all
           supported punctuation, multi-word encoding/decoding, full round-trip verification (encode
           then decode returns original), edge cases like empty input, unknown characters, and
           malformed Morse sequences.

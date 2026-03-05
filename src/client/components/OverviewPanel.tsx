@@ -29,7 +29,7 @@ const EXERCISES: {
     name: "Morse Code",
     lang: "Perl",
     color: "#4ade80",
-    why: "A text-processing problem at its core \u2014 splitting on delimiters and mapping through a lookup table. Perl is the language for this domain.",
+    why: "A text-processing problem at its core: splitting on delimiters and mapping through a lookup table. Perl is the language for this domain.",
     tests: 232,
   },
   {
@@ -37,7 +37,7 @@ const EXERCISES: {
     name: "On-Screen Keyboard",
     lang: "Python",
     color: "#38bdf8",
-    why: "Scripting device input on a smart TV \u2014 a space where Python dominates. Clean data modeling makes the solution readable and extensible.",
+    why: "Scripting device input on a smart TV, a space where Python dominates. Clean data modeling makes the solution readable and extensible.",
     tests: 94,
   },
   {
@@ -69,7 +69,7 @@ export function OverviewPanel({ onNavigate }: Props) {
     <div style={styles.panel}>
       <h2 style={styles.title}>Overview</h2>
       <p style={styles.desc}>
-        Six exercises, six languages &mdash; each language chosen to fit the problem it solves.
+        Six exercises, six languages, each chosen to fit the problem it solves.
         Every exercise prompt suggests approaching it as part of a larger system, so this dashboard
         ties them all together.
       </p>
@@ -77,7 +77,7 @@ export function OverviewPanel({ onNavigate }: Props) {
       <div style={styles.philosophy}>
         <div style={styles.philHeading}>Approach</div>
         <p style={styles.philText}>
-          Each exercise uses a language suited to its problem domain &mdash; Rust for
+          Each exercise uses a language suited to its problem domain: Rust for
           financial math, Perl for text processing, Go for interface-driven business rules, and so
           on. The table below explains the reasoning behind each choice.
         </p>

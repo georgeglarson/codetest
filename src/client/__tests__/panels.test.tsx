@@ -1014,9 +1014,9 @@ describe("OnScreenKeyboardPanel — visualizer controls", () => {
     expect(screen.getByText("0/11")).toBeInTheDocument();
   });
 
-  it("move indicator shows 'Cursor at A — ready' at start", async () => {
+  it("move indicator shows 'Cursor at A, ready' at start", async () => {
     await runSpellIt();
-    expect(screen.getByText(/Cursor at A — ready/)).toBeInTheDocument();
+    expect(screen.getByText(/Cursor at A, ready/)).toBeInTheDocument();
   });
 
   it("empty input is not submitted", () => {
@@ -1092,7 +1092,7 @@ describe("GildedRosePanel — simulation details", () => {
 
   it("CSV label is visible", () => {
     goToGR();
-    expect(screen.getByText(/Inventory CSV — one item per line/)).toBeInTheDocument();
+    expect(screen.getByText(/Inventory CSV, one item per line/)).toBeInTheDocument();
   });
 
   it("start button is disabled and shows 'Starting...' during loading", async () => {

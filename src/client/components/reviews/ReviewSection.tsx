@@ -129,7 +129,7 @@ export function ReviewSection({ refreshKey, onMutate }: Props) {
           <option value="">Select restaurant...</option>
           {restaurants.map((r) => (
             <option key={r.id} value={r.id}>
-              {r.name} — {r.city}
+              {r.name}, {r.city}
             </option>
           ))}
         </select>
@@ -140,11 +140,11 @@ export function ReviewSection({ refreshKey, onMutate }: Props) {
           aria-label="Select rating"
         >
           <option value="">Rating...</option>
-          <option value="1">1 — Poor</option>
-          <option value="2">2 — Fair</option>
-          <option value="3">3 — Good</option>
-          <option value="4">4 — Great</option>
-          <option value="5">5 — Excellent</option>
+          <option value="1">1 - Poor</option>
+          <option value="2">2 - Fair</option>
+          <option value="3">3 - Good</option>
+          <option value="4">4 - Great</option>
+          <option value="5">5 - Excellent</option>
         </select>
         <textarea
           value={body}
@@ -180,7 +180,7 @@ export function ReviewSection({ refreshKey, onMutate }: Props) {
           {reviews.length === 0 && !listApi.loading && (
             <tr>
               <td colSpan={5} style={styles.emptyRow}>
-                No reviews yet &mdash; select a user and restaurant above to create one
+                No reviews yet. Select a user and restaurant above to create one.
               </td>
             </tr>
           )}
