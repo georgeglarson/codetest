@@ -370,3 +370,175 @@ func TestClampQuality_atBoundaries(t *testing.T) {
 		t.Error("expected 50")
 	}
 }
+
+// ============================================================
+// Backstage: Quality=50 through full countdown stays capped
+// ============================================================
+
+func TestBackstage_qualityAt50StaysCappedThroughCountdown(t *testing.T) {
+	itm := item.Item{Name: "Concert", Category: "Backstage Passes", SellIn: 12, Quality: 50}
+	u := Backstage{}
+
+	// Advance to SellIn=10 (2 updates from 12)
+	u.Update(&itm) // SellIn=11, +1 capped at 50
+	u.Update(&itm) // SellIn=10, +1 capped at 50
+	if itm.Quality != 50 {
+		t.Errorf("at SellIn 10: expected quality 50, got %d", itm.Quality)
+	}
+
+	// Advance to SellIn=5 (5 more updates)
+	for i := 0; i < 5; i++ {
+		u.Update(&itm)
+	}
+	if itm.SellIn != 5 {
+		t.Errorf("expected SellIn 5, got %d", itm.SellIn)
+	}
+	if itm.Quality != 50 {
+		t.Errorf("at SellIn 5: expected quality 50, got %d", itm.Quality)
+	}
+
+	// Advance to SellIn=0 (5 more updates)
+	for i := 0; i < 5; i++ {
+		u.Update(&itm)
+	}
+	if itm.SellIn != 0 {
+		t.Errorf("expected SellIn 0, got %d", itm.SellIn)
+	}
+	if itm.Quality != 50 {
+		t.Errorf("at SellIn 0: expected quality 50, got %d", itm.Quality)
+	}
+
+	// One more update: SellIn=-1, concert over, quality drops to 0
+	u.Update(&itm)
+	if itm.Quality != 0 {
+		t.Errorf("after concert: expected quality 0, got %d", itm.Quality)
+	}
+}
+
+// ============================================================
+// Aged Brie: boundary clamping near 50
+// ============================================================
+
+func TestAged_qualityAt49SellIn0_clampsTo50(t *testing.T) {
+	// SellIn=0: after decrement SellIn=-1 (<0), so +2 increment → 49+2=51, clamped to 50
+	i := applyUpdate(Aged{}, 0, 49)
+	if i.Quality != 50 {
+		t.Errorf("expected quality 50 (clamped from 51), got %d", i.Quality)
+	}
+}
+
+func TestAged_qualityAt50SellInNeg1_staysAt50(t *testing.T) {
+	// Already at cap, past sell-by: +2 → 52, clamped to 50
+	i := applyUpdate(Aged{}, -1, 50)
+	if i.Quality != 50 {
+		t.Errorf("expected quality 50 (still capped), got %d", i.Quality)
+	}
+}
+
+// ============================================================
+// Conjured: boundary clamping near 0
+// ============================================================
+
+func TestConjured_quality3SellIn0_clampsTo0(t *testing.T) {
+	// SellIn=0: after decrement SellIn=-1 (<0), degrade by 4 → 3-4=-1, clamped to 0
+	i := applyUpdate(Conjured{}, 0, 3)
+	if i.Quality != 0 {
+		t.Errorf("expected quality 0 (clamped), got %d", i.Quality)
+	}
+}
+
+func TestConjured_quality5SellIn0_becomes1(t *testing.T) {
+	// SellIn=0: after decrement SellIn=-1 (<0), degrade by 4 → 5-4=1
+	i := applyUpdate(Conjured{}, 0, 5)
+	if i.Quality != 1 {
+		t.Errorf("expected quality 1, got %d", i.Quality)
+	}
+}
+
+func TestConjured_quality1SellIn10_clampsTo0(t *testing.T) {
+	// SellIn=10: after decrement SellIn=9 (>=0), degrade by 2 → 1-2=-1, clamped to 0
+	i := applyUpdate(Conjured{}, 10, 1)
+	if i.Quality != 0 {
+		t.Errorf("expected quality 0 (clamped), got %d", i.Quality)
+	}
+}
+
+// ============================================================
+// Sulfuras: edge-case SellIn values
+// ============================================================
+
+func TestSulfuras_negativeSellIn_neverChanges(t *testing.T) {
+	i := applyUpdate(Sulfuras{}, -5, 80)
+	if i.Quality != 80 {
+		t.Errorf("expected quality 80, got %d", i.Quality)
+	}
+	if i.SellIn != -5 {
+		t.Errorf("expected sellIn -5, got %d", i.SellIn)
+	}
+}
+
+func TestSulfuras_highSellIn_neverChanges(t *testing.T) {
+	i := applyUpdate(Sulfuras{}, 999, 80)
+	if i.Quality != 80 {
+		t.Errorf("expected quality 80, got %d", i.Quality)
+	}
+	if i.SellIn != 999 {
+		t.Errorf("expected sellIn 999, got %d", i.SellIn)
+	}
+}
+
+// ============================================================
+// Normal: Quality=50 (max) degrades to 49
+// ============================================================
+
+func TestNormal_qualityAt50_degradesTo49(t *testing.T) {
+	i := applyUpdate(Normal{}, 10, 50)
+	if i.Quality != 49 {
+		t.Errorf("expected quality 49, got %d", i.Quality)
+	}
+}
+
+// ============================================================
+// Registry: edge cases
+// ============================================================
+
+func TestRegistry_emptyStringCategory_returnsNormal(t *testing.T) {
+	reg := NewRegistry()
+	u := reg.Get("Some Item", "")
+	if _, ok := u.(Normal); !ok {
+		t.Error("expected Normal updater for empty category")
+	}
+}
+
+func TestRegistry_lowercaseSulfuras_returnsNormal(t *testing.T) {
+	// Registry uses exact match; "sulfuras" != "Sulfuras"
+	reg := NewRegistry()
+	u := reg.Get("Some Item", "sulfuras")
+	if _, ok := u.(Normal); !ok {
+		t.Error("expected Normal updater for lowercase 'sulfuras' (case-sensitive miss)")
+	}
+}
+
+// ============================================================
+// Conjured: SellIn already negative
+// ============================================================
+
+func TestConjured_quality3SellInNeg1_clampsTo0(t *testing.T) {
+	// SellIn=-1: after decrement SellIn=-2 (<0), degrade by 4 → 3-4=-1, clamped to 0
+	i := applyUpdate(Conjured{}, -1, 3)
+	if i.Quality != 0 {
+		t.Errorf("expected quality 0 (clamped), got %d", i.Quality)
+	}
+}
+
+// ============================================================
+// Backstage: Quality=48 at SellIn=5 caps at 50
+// ============================================================
+
+func TestBackstage_quality48SellIn5_capsAt50(t *testing.T) {
+	// SellIn=5: after decrement SellIn=4 (<5), so +3 → 48+3=51, clamped to 50
+	i := applyUpdate(Backstage{}, 5, 48)
+	if i.Quality != 50 {
+		t.Errorf("expected quality 50 (capped from 51), got %d", i.Quality)
+	}
+}

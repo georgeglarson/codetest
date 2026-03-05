@@ -239,4 +239,79 @@ mod tests {
             other => panic!("expected MalformedLine, got {:?}", other),
         }
     }
+
+    #[test]
+    fn parse_rejects_negative_amount() {
+        let err = parse_dollars_to_cents("-2.13").unwrap_err();
+        assert!(
+            err.contains("invalid") || err.contains("not a valid"),
+            "expected rejection of negative amount, got: {err}"
+        );
+    }
+
+    #[test]
+    fn parse_rejects_negative_penny() {
+        let err = parse_dollars_to_cents("-0.01").unwrap_err();
+        assert!(
+            err.contains("invalid") || err.contains("not a valid"),
+            "expected rejection of negative amount, got: {err}"
+        );
+    }
+
+    #[test]
+    fn parse_zero_dollars_and_cents() {
+        assert_eq!(parse_dollars_to_cents("0.00"), Ok(0));
+    }
+
+    #[test]
+    fn parse_near_overflow_boundary_ok() {
+        // 42949672 * 100 + 95 = 4294967295 = u32::MAX
+        assert_eq!(
+            parse_dollars_to_cents("42949672.95"),
+            Ok(u32::MAX),
+            "42949672.95 should parse to u32::MAX (4294967295 cents)"
+        );
+    }
+
+    #[test]
+    fn parse_line_multiple_commas_errors() {
+        let result = parse_line("2.13,,3.00", 1);
+        assert!(
+            result.is_err(),
+            "multiple commas should produce an error, got: {:?}",
+            result
+        );
+    }
+
+    #[test]
+    fn parse_line_zero_payment() {
+        let tx = parse_line("0.00,0.00", 1).unwrap();
+        assert_eq!(tx.owed_cents, 0);
+        assert_eq!(tx.paid_cents, 0);
+        assert_eq!(tx.change_cents, 0);
+    }
+
+    #[test]
+    fn parse_input_all_blank_lines() {
+        let results = parse_input("\n\n\n");
+        assert!(
+            results.is_empty(),
+            "all-blank input should produce empty vec, got {} results",
+            results.len()
+        );
+    }
+
+    #[test]
+    fn parse_input_line_numbering_after_multiple_blanks() {
+        // Lines: 1="", 2="", 3="bad_line", 4=""
+        let input = "\n\nbad_line\n";
+        let results = parse_input(input);
+        assert_eq!(results.len(), 1);
+        match &results[0] {
+            Err(CashRegisterError::MalformedLine { line, .. }) => {
+                assert_eq!(*line, 3, "expected line 3, got {line}");
+            }
+            other => panic!("expected MalformedLine for line 3, got {:?}", other),
+        }
+    }
 }

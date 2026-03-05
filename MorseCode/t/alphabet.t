@@ -64,6 +64,21 @@ for my $morse (sort keys %expected_digits) {
 is(MorseAlphabet::encode_char('a'), '.-',   "encode lowercase 'a'");
 is(MorseAlphabet::encode_char('z'), '--..', "encode lowercase 'z'");
 
+# --- encode_char: uppercase letters work (case insensitivity from both sides) ---
+
+is(MorseAlphabet::encode_char('A'), '.-',   "encode uppercase 'A'");
+is(MorseAlphabet::encode_char('Z'), '--..', "encode uppercase 'Z'");
+
+# --- encode_char: empty string returns undef ---
+
+is(MorseAlphabet::encode_char(''), undef, "encode_char('') returns undef");
+
+# --- encode_char: control characters return undef ---
+
+is(MorseAlphabet::encode_char("\t"), undef, "encode_char(tab) returns undef");
+is(MorseAlphabet::encode_char("\n"), undef, "encode_char(newline) returns undef");
+is(MorseAlphabet::encode_char("\0"), undef, "encode_char(null) returns undef");
+
 # --- alphabet: returns full table ---
 
 my $table = MorseAlphabet::alphabet();

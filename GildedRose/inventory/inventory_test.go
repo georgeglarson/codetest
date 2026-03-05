@@ -283,6 +283,127 @@ func TestMultiDay_100DaysNoNegativeQuality(t *testing.T) {
 	}
 }
 
+func TestMultiDay_backstageAt50SellIn6_cappedThenDrops(t *testing.T) {
+	items := []item.Item{
+		{Name: "VIP Pass", Category: "Backstage Passes", SellIn: 6, Quality: 50},
+	}
+	inv := New(items)
+
+	// Day 1: SellIn=5, +2 → capped at 50
+	inv.NextDay()
+	if inv.FindByName("VIP Pass").Quality != 50 {
+		t.Errorf("day 1: expected 50, got %d", inv.FindByName("VIP Pass").Quality)
+	}
+
+	// Day 2: SellIn=4, +3 → capped at 50
+	inv.NextDay()
+	if inv.FindByName("VIP Pass").Quality != 50 {
+		t.Errorf("day 2: expected 50, got %d", inv.FindByName("VIP Pass").Quality)
+	}
+
+	// Days 3–6: keep advancing through SellIn 3,2,1,0
+	for i := 3; i <= 6; i++ {
+		inv.NextDay()
+		if inv.FindByName("VIP Pass").Quality != 50 {
+			t.Errorf("day %d: expected 50, got %d", i, inv.FindByName("VIP Pass").Quality)
+		}
+	}
+
+	// Day 7: SellIn=-1, concert over → quality drops to 0
+	inv.NextDay()
+	if inv.FindByName("VIP Pass").Quality != 0 {
+		t.Errorf("day 7 (post-concert): expected 0, got %d", inv.FindByName("VIP Pass").Quality)
+	}
+}
+
+func TestMultiDay_itemStartingPastSellBy(t *testing.T) {
+	items := []item.Item{
+		{Name: "Old Sword", Category: "Weapon", SellIn: -5, Quality: 10},
+	}
+	inv := New(items)
+
+	// Already past sell-by: degrades by 2 per day
+	inv.NextDay() // SellIn=-6, Quality=8
+	if inv.FindByName("Old Sword").Quality != 8 {
+		t.Errorf("day 1: expected 8, got %d", inv.FindByName("Old Sword").Quality)
+	}
+
+	inv.NextDay() // SellIn=-7, Quality=6
+	if inv.FindByName("Old Sword").Quality != 6 {
+		t.Errorf("day 2: expected 6, got %d", inv.FindByName("Old Sword").Quality)
+	}
+
+	inv.NextDay() // SellIn=-8, Quality=4
+	inv.NextDay() // SellIn=-9, Quality=2
+	inv.NextDay() // SellIn=-10, Quality=0
+
+	if inv.FindByName("Old Sword").Quality != 0 {
+		t.Errorf("day 5: expected 0, got %d", inv.FindByName("Old Sword").Quality)
+	}
+	if inv.FindByName("Old Sword").SellIn != -10 {
+		t.Errorf("day 5: expected sellIn -10, got %d", inv.FindByName("Old Sword").SellIn)
+	}
+}
+
+// ============================================================
+// Empty inventory
+// ============================================================
+
+func TestNew_emptyInventory_itemsReturnsEmptySlice(t *testing.T) {
+	inv := New([]item.Item{})
+	items := inv.Items()
+	if len(items) != 0 {
+		t.Errorf("expected 0 items, got %d", len(items))
+	}
+}
+
+func TestNew_emptyInventory_trashReturnsEmpty(t *testing.T) {
+	inv := New([]item.Item{})
+	trash := inv.Trash()
+	if trash != nil && len(trash) != 0 {
+		t.Errorf("expected nil or empty trash, got %d items", len(trash))
+	}
+}
+
+// ============================================================
+// FindByName edge cases
+// ============================================================
+
+func TestFindByName_emptyString_returnsNil(t *testing.T) {
+	inv := New(sampleItems())
+	itm := inv.FindByName("")
+	if itm != nil {
+		t.Error("expected nil for empty string search")
+	}
+}
+
+// ============================================================
+// Multiple trash items
+// ============================================================
+
+func TestTrash_multipleTrashItems(t *testing.T) {
+	items := []item.Item{
+		{Name: "Good Sword", Category: "Weapon", SellIn: 10, Quality: 10},
+		{Name: "Broken Shield", Category: "Armor", SellIn: 0, Quality: 0},
+		{Name: "Rotten Cheese", Category: "Food", SellIn: -5, Quality: 0},
+		{Name: "Cursed Ring", Category: "Misc", SellIn: -3, Quality: -2},
+	}
+	inv := New(items)
+	trash := inv.Trash()
+	if len(trash) != 3 {
+		t.Fatalf("expected 3 trash items, got %d", len(trash))
+	}
+	names := map[string]bool{}
+	for _, itm := range trash {
+		names[itm.Name] = true
+	}
+	for _, expected := range []string{"Broken Shield", "Rotten Cheese", "Cursed Ring"} {
+		if !names[expected] {
+			t.Errorf("expected %q in trash", expected)
+		}
+	}
+}
+
 func TestMultiDay_100DaysNoQualityAbove50_exceptSulfuras(t *testing.T) {
 	inv := New(sampleItems())
 	for i := 0; i < 100; i++ {

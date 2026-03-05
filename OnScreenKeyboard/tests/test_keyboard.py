@@ -112,3 +112,41 @@ class TestBuildIndex:
     def test_duplicate_characters_raises(self):
         with pytest.raises(ValueError, match="duplicate character"):
             build_index(["AA", "BC"])
+
+
+# ============================================================
+# main.py — basic integration / import tests
+# ============================================================
+
+
+class TestMainImport:
+    """Verify main.py can be imported without side effects."""
+
+    def test_import_main_does_not_crash(self):
+        """Importing main should succeed (guarded by __name__ check)."""
+        import importlib
+        import sys
+
+        # Ensure clean import
+        if "main" in sys.modules:
+            del sys.modules["main"]
+        mod = importlib.import_module("main")
+        assert hasattr(mod, "main")
+
+    def test_main_without_args_exits(self):
+        """Calling main() with no CLI args prints usage and exits."""
+        import importlib
+        import sys
+
+        if "main" in sys.modules:
+            del sys.modules["main"]
+        mod = importlib.import_module("main")
+
+        original_argv = sys.argv
+        try:
+            sys.argv = ["main.py"]
+            with pytest.raises(SystemExit) as exc_info:
+                mod.main()
+            assert exc_info.value.code == 1
+        finally:
+            sys.argv = original_argv

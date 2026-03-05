@@ -128,6 +128,42 @@ test "processInput: multiple missing returns InvalidInput" {
     try testing.expectError(error.InvalidInput, result);
 }
 
+// --- Multi-line error propagation ---
+
+test "processInput: error on second line propagates (first line valid)" {
+    const input =
+        \\1,2,4,5
+        \\abc,def
+    ;
+    const result = processInput(testing.allocator, input);
+    try testing.expectError(error.InvalidCharacter, result);
+}
+
+test "processInput: solver error on second line propagates (first line valid)" {
+    const input =
+        \\1,2,4,5
+        \\7
+    ;
+    const result = processInput(testing.allocator, input);
+    try testing.expectError(error.InvalidInput, result);
+}
+
+// --- Single-number line at integration level ---
+
+test "processInput: single number line returns InvalidInput" {
+    const result = processInput(testing.allocator, "42");
+    try testing.expectError(error.InvalidInput, result);
+}
+
+// --- All-blank input ---
+
+test "processInput: all-blank input returns empty results" {
+    const results = try processInput(testing.allocator, "\n\n\n");
+    defer testing.allocator.free(results);
+
+    try testing.expectEqual(@as(usize, 0), results.len);
+}
+
 // Pull in tests from submodules so `zig build test` runs them all.
 test "submodule tests" {
     _ = solver;

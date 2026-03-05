@@ -114,4 +114,50 @@ like($@, qr/Unknown Morse sequence/, 'dies on unknown Morse sequence');
 eval { MorseDecoder::decode_line('.-||.-.-.-.-.-||-...') };
 like($@, qr/Unknown Morse sequence/, 'dies on unknown sequence mid-word');
 
+# --- decode_line(undef): returns empty string (with warning) ---
+
+{
+    local $SIG{__WARN__} = sub {};
+    is(MorseDecoder::decode_line(undef), '', 'decode_line(undef) returns empty string');
+}
+
+# --- Malformed delimiters: "||||" (just word separators, no content) ---
+# split discards trailing empties, so "||||" splits to empty list -> empty result
+
+is(MorseDecoder::decode_line('||||'), '',
+   'decode_line("||||") returns empty string (only word separator)');
+
+# --- Leading separator: "||||.-" produces leading space ---
+# split /\|\|\|\|/, "||||.-" -> ("", ".-")
+# The empty first word produces "" (no letters), then join adds a space before "a"
+
+is(MorseDecoder::decode_line('||||.-'), ' a',
+   'leading |||| produces leading space before decoded content');
+
+# --- Trailing separator: ".-||||" drops trailing empty word ---
+# split /\|\|\|\|/, ".-||||" -> (".-") (Perl discards trailing empties)
+
+is(MorseDecoder::decode_line('.-||||'), 'a',
+   'trailing |||| is ignored (Perl split discards trailing empties)');
+
+# --- Reverse round-trip from decode side: encode(decode(morse)) eq morse ---
+
+use MorseEncoder;
+
+my @morse_strings = (
+    '-..||---||--.', # dog
+    '....||.||.-..||.-..||---||||.--||---||.-.||.-..||-..', # hello world
+    '...||---||...', # sos
+    '.-',  # a
+    '.----||..---||...--', # 123
+    '...||---||...||||..||...', # sos is (two words)
+);
+
+for my $morse (@morse_strings) {
+    my $decoded  = MorseDecoder::decode_line($morse);
+    my $reencoded = MorseEncoder::encode_line($decoded);
+    is($reencoded, $morse,
+       "reverse round-trip: encode(decode('$morse')) reproduces original morse");
+}
+
 done_testing;

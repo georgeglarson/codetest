@@ -111,4 +111,58 @@ like($@, qr/No Morse encoding for character/, 'dies on unencodable character: !'
 eval { MorseEncoder::encode_line('test@home') };
 like($@, qr/No Morse encoding for character/, 'dies on unencodable character: @');
 
+# --- encode_line(undef): returns empty string (with warning) ---
+
+{
+    # Suppress "uninitialized" warning for this test
+    local $SIG{__WARN__} = sub {};
+    is(MorseEncoder::encode_line(undef), '', 'encode_line(undef) returns empty string');
+}
+
+# --- More invalid characters ---
+
+my @invalid_chars = (
+    ['-',  'hyphen'],
+    ['.',  'period'],
+    [',',  'comma'],
+    ["'",  'apostrophe'],
+    ['?',  'question mark'],
+    ['/',  'slash'],
+);
+
+for my $pair (@invalid_chars) {
+    my ($ch, $name) = @$pair;
+    eval { MorseEncoder::encode_line($ch) };
+    like($@, qr/No Morse encoding for character/,
+         "dies on unencodable character: $name ($ch)");
+}
+
+# --- Tab in input: treated as word boundary (Perl split ' ' splits on any whitespace) ---
+
+is(MorseEncoder::encode_line("A\tB"),
+   '.-||||-...', 'tab treated as word boundary between A and B');
+
+# --- Single space input: returns empty string ---
+
+is(MorseEncoder::encode_line(' '), '', 'single space encodes to empty string');
+
+# --- Reverse round-trip: decode(encode(text)) eq lc(text) ---
+
+my @roundtrip_phrases = (
+    'hello',
+    'morse code',
+    'the quick brown fox',
+    '42',
+    'abc 123 xyz',
+    'a',
+    's o s',
+);
+
+for my $phrase (@roundtrip_phrases) {
+    my $encoded = MorseEncoder::encode_line($phrase);
+    my $decoded = MorseDecoder::decode_line($encoded);
+    is($decoded, lc($phrase),
+       "reverse round-trip: decode(encode('$phrase')) eq lc('$phrase')");
+}
+
 done_testing;

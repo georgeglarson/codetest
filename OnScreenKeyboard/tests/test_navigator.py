@@ -82,6 +82,24 @@ class TestNavigate:
         assert moves.count("D") == 5
         assert moves.count("L") == 5
 
+    def test_vertical_first_then_horizontal_down_right(self):
+        """Movement order is always vertical before horizontal."""
+        moves = navigate((0, 0), (2, 3))
+        assert moves == ["D", "D", "R", "R", "R"]
+
+    def test_vertical_first_then_horizontal_up_left(self):
+        """Movement order is always vertical before horizontal."""
+        moves = navigate((3, 4), (1, 1))
+        assert moves == ["U", "U", "L", "L", "L"]
+
+    def test_vertical_first_then_horizontal_down_left(self):
+        moves = navigate((0, 5), (3, 0))
+        assert moves == ["D", "D", "D", "L", "L", "L", "L", "L"]
+
+    def test_vertical_first_then_horizontal_up_right(self):
+        moves = navigate((4, 1), (1, 4))
+        assert moves == ["U", "U", "U", "R", "R", "R"]
+
 
 # ============================================================
 # script_path() — full path scripting
@@ -274,6 +292,100 @@ class TestScriptPath:
 
     def test_empty_string(self, index):
         assert script_path("", index) == []
+
+    # --- Whitespace / control character rejection ---
+
+    def test_tab_in_input_raises(self, index):
+        with pytest.raises(ValueError, match="Character not on keyboard"):
+            script_path("A\tB", index)
+
+    def test_newline_in_input_raises(self, index):
+        with pytest.raises(ValueError, match="Character not on keyboard"):
+            script_path("A\nB", index)
+
+    # --- Only spaces ---
+
+    def test_only_spaces(self, index):
+        path = script_path("     ", index)
+        assert path == ["S", "S", "S", "S", "S"]
+
+    # --- Horizontal same-row traversal ---
+
+    def test_horizontal_same_row_ABCDEF(self, index):
+        path = script_path("ABCDEF", index)
+        assert path == [
+            "#",           # A at (0,0)
+            "R", "#",      # B at (0,1)
+            "R", "#",      # C at (0,2)
+            "R", "#",      # D at (0,3)
+            "R", "#",      # E at (0,4)
+            "R", "#",      # F at (0,5)
+        ]
+
+    # --- Vertical same-column traversal ---
+
+    def test_vertical_same_column_AGMSY5(self, index):
+        path = script_path("AGMSY5", index)
+        assert path == [
+            "#",           # A at (0,0)
+            "D", "#",      # G at (1,0)
+            "D", "#",      # M at (2,0)
+            "D", "#",      # S at (3,0)
+            "D", "#",      # Y at (4,0)
+            "D", "#",      # 5 at (5,0)
+        ]
+
+    # --- Movement order is vertical-first for diagonal paths ---
+
+    def test_movement_order_vertical_before_horizontal(self, index):
+        """For any diagonal move, D/U always precede L/R in the path segment."""
+        # I=(1,2), W=(3,4) — diagonal move: 2 down, 2 right
+        path = script_path("IW", index)
+        # I from origin: D,R,R,#  W from I: D,D,R,R,#
+        i_to_w = path[4:9]  # moves from I to W including select
+        moves_only = [m for m in i_to_w if m != "#"]
+        # All D moves should come before all R moves
+        last_d = -1
+        first_r = len(moves_only)
+        for i, m in enumerate(moves_only):
+            if m == "D":
+                last_d = i
+            if m == "R" and i < first_r:
+                first_r = i
+        assert last_d < first_r, "vertical moves must precede horizontal moves"
+
+    # --- Unicode rejection ---
+
+    def test_unicode_raises(self, index):
+        with pytest.raises(ValueError, match="Character not on keyboard"):
+            script_path("caf\u00e9", index)
+
+    # --- More special characters ---
+
+    @pytest.mark.parametrize("char", ["#", "$", "%", "&", "*"])
+    def test_special_characters_raise(self, index, char):
+        with pytest.raises(ValueError, match="Character not on keyboard"):
+            script_path(char, index)
+
+    # --- Reverse traversal (bottom-right to top-left) ---
+
+    def test_reverse_traversal_0A(self, index):
+        path = script_path("0A", index)
+        assert path == (
+            ["D"] * 5 + ["R"] * 5 + ["#"] +  # 0 at (5,5)
+            ["U"] * 5 + ["L"] * 5 + ["#"]     # A at (0,0)
+        )
+
+    # --- Select count property ---
+
+    def test_select_count_equals_non_space_chars(self, index):
+        """For any input, count of '#' equals number of non-space characters."""
+        for text in ["IT CROWD", "HELLO WORLD", "A B C", "   X   ", "12345", "A"]:
+            path = script_path(text, index)
+            non_space_chars = sum(1 for c in text if c != " ")
+            assert path.count("#") == non_space_chars, (
+                f"For {text!r}: expected {non_space_chars} selects, got {path.count('#')}"
+            )
 
     # --- Custom layout ---
 

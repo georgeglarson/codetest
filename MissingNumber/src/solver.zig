@@ -230,3 +230,54 @@ test "findMissing: extreme i64 values return Overflow" {
     const nums = [_]i64{ std.math.minInt(i64), std.math.maxInt(i64) };
     try testing.expectError(SolverError.Overflow, findMissing(&nums));
 }
+
+// --- Negative-only edge cases ---
+
+test "findMissing: contiguous negative range returns InvalidInput" {
+    const nums = [_]i64{ -3, -2, -1, 0 };
+    try testing.expectError(SolverError.InvalidInput, findMissing(&nums));
+}
+
+test "findMissing: single negative element returns InvalidInput" {
+    const nums = [_]i64{-7};
+    try testing.expectError(SolverError.InvalidInput, findMissing(&nums));
+}
+
+test "findMissing: two-element negative pair missing -1" {
+    const nums = [_]i64{ -2, 0 };
+    try testing.expectEqual(@as(i64, -1), try findMissing(&nums));
+}
+
+test "findMissing: contiguous range starting at zero returns InvalidInput" {
+    const nums = [_]i64{ 0, 1, 2, 3 };
+    try testing.expectError(SolverError.InvalidInput, findMissing(&nums));
+}
+
+// --- Overflow isolation: actual_sum overflow ---
+
+test "findMissing: actual_sum overflow from many large positives" {
+    // Construct a range near i64 max where summing the elements overflows.
+    // Range: [maxInt - 4 .. maxInt] missing (maxInt - 2), i.e. 4 elements.
+    // Sum of remaining ≈ 4 * maxInt which overflows i64.
+    const max = std.math.maxInt(i64);
+    const nums = [_]i64{ max - 4, max - 3, max - 1, max };
+    try testing.expectError(SolverError.Overflow, findMissing(&nums));
+}
+
+// --- Overflow isolation: range_span overflow ---
+
+test "findMissing: range_span overflow from extreme min/max spread" {
+    // min = minInt, max = 0 → range_span = 0 - minInt overflows i64.
+    const nums = [_]i64{ std.math.minInt(i64), 0 };
+    try testing.expectError(SolverError.Overflow, findMissing(&nums));
+}
+
+// --- Parser integration: overflow at parse boundary ---
+
+test "findMissing: i64 max value is a valid element" {
+    // Two-element series: [maxInt - 2, maxInt] missing (maxInt - 1).
+    // actual_sum = (maxInt - 2) + maxInt overflows, so we expect Overflow.
+    const max = std.math.maxInt(i64);
+    const nums = [_]i64{ max - 2, max };
+    try testing.expectError(SolverError.Overflow, findMissing(&nums));
+}

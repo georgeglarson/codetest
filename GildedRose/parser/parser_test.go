@@ -173,6 +173,52 @@ func TestParse_rejectsLegendaryQualityNot80(t *testing.T) {
 	}
 }
 
+func TestParse_emptyNameField(t *testing.T) {
+	input := ",Weapon,10,20\n"
+	items, err := Parse(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	// Parser trims whitespace but does not reject empty names;
+	// the resulting item has an empty Name field.
+	if items[0].Name != "" {
+		t.Errorf("expected empty name, got %q", items[0].Name)
+	}
+}
+
+func TestParse_emptyCategoryField(t *testing.T) {
+	input := "Sword,,10,20\n"
+	items, err := Parse(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if items[0].Category != "" {
+		t.Errorf("expected empty category, got %q", items[0].Category)
+	}
+}
+
+func TestParse_qualityExactly50_accepted(t *testing.T) {
+	input := "Sword,Weapon,10,50\n"
+	items, err := Parse(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if items[0].Quality != 50 {
+		t.Errorf("expected quality 50, got %d", items[0].Quality)
+	}
+}
+
+func TestParse_qualityExactly0_accepted(t *testing.T) {
+	input := "Sword,Weapon,10,0\n"
+	items, err := Parse(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if items[0].Quality != 0 {
+		t.Errorf("expected quality 0, got %d", items[0].Quality)
+	}
+}
+
 func TestParse_fullInventoryFile(t *testing.T) {
 	input := `Sword,Weapon,30,50
 Axe,Weapon,40,50

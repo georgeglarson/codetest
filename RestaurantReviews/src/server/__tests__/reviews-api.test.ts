@@ -736,6 +736,27 @@ describe("GET /api/reviews", () => {
     const res = await request(app).get("/api/reviews?restaurantId=abc");
     expect(res.status).toBe(400);
   });
+
+  it("userId takes precedence when both userId and restaurantId are provided", async () => {
+    const { app } = freshApp();
+    const alice = await createUser(app, "Alice", "alice@example.com");
+    const bob = await createUser(app, "Bob", "bob@example.com");
+    const r1 = await createRestaurant(app, "Place A", "City");
+    const r2 = await createRestaurant(app, "Place B", "City");
+    // Alice reviews r1; Bob reviews r2
+    await createReview(app, alice.id, r1.id, 5, "Alice @ A");
+    await createReview(app, bob.id, r2.id, 3, "Bob @ B");
+
+    // Both filters: userId=alice, restaurantId=r2
+    // Since userId is checked first, we get Alice's reviews (not r2's)
+    const res = await request(app).get(
+      `/api/reviews?userId=${alice.id}&restaurantId=${r2.id}`
+    );
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveLength(1);
+    expect(res.body[0].user_id).toBe(alice.id);
+    expect(res.body[0].restaurant_id).toBe(r1.id); // Alice's review is on r1, not r2
+  });
 });
 
 describe("GET /api/reviews/:id", () => {
@@ -815,6 +836,36 @@ describe("PUT /api/reviews/:id", () => {
     const { app } = freshApp();
     const res = await request(app).put("/api/reviews/abc").send({ rating: 5 });
     expect(res.status).toBe(400);
+  });
+
+  it("returns 400 for rating=0", async () => {
+    const { app } = freshApp();
+    const user = await createUser(app);
+    const restaurant = await createRestaurant(app);
+    await createReview(app, user.id, restaurant.id);
+    const res = await request(app).put("/api/reviews/1").send({ rating: 0 });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toContain("rating");
+  });
+
+  it("returns 400 for rating=6", async () => {
+    const { app } = freshApp();
+    const user = await createUser(app);
+    const restaurant = await createRestaurant(app);
+    await createReview(app, user.id, restaurant.id);
+    const res = await request(app).put("/api/reviews/1").send({ rating: 6 });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toContain("rating");
+  });
+
+  it("returns 400 for float rating (3.5)", async () => {
+    const { app } = freshApp();
+    const user = await createUser(app);
+    const restaurant = await createRestaurant(app);
+    await createReview(app, user.id, restaurant.id);
+    const res = await request(app).put("/api/reviews/1").send({ rating: 3.5 });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toContain("rating");
   });
 
   it("keeps existing body when body not provided", async () => {

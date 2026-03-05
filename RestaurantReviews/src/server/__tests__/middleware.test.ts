@@ -83,4 +83,26 @@ describe("rate limiting", () => {
     );
     expect(hasRateLimitHeader).toBe(true);
   });
+
+  it("returns 429 after exceeding exercise rate limit (30 req/min)", async () => {
+    const Database = (await import("better-sqlite3")).default;
+    const { createApp } = await import("../app.js");
+    const db = new Database(":memory:");
+    const app = createApp(db);
+
+    // The exercise limiter allows 30 requests per minute window.
+    // Fire 31 requests; the 31st should be rate-limited.
+    const agent = request(app);
+    const results = [];
+    for (let i = 0; i < 31; i++) {
+      results.push(
+        agent
+          .post("/api/exercises/cash-register")
+          .send({ input: "1.00,2.00\n" })
+      );
+    }
+    const responses = await Promise.all(results);
+    const statuses = responses.map((r) => r.status);
+    expect(statuses.filter((s) => s === 429).length).toBeGreaterThanOrEqual(1);
+  });
 });

@@ -392,6 +392,170 @@ fn verbose_eur() {
     assert!(lines[1].starts_with("Owed €3.33, Paid €5.00 -> "));
 }
 
+// ─── Negative amount tests ──────────────────────────────────────────
+
+#[test]
+fn negative_amount_errors() {
+    let dir = env!("CARGO_MANIFEST_DIR");
+    let path = format!("{dir}/test_negative.txt");
+    std::fs::write(&path, "-2.13,3.00\n").unwrap();
+
+    let output = cargo_bin()
+        .arg(&path)
+        .output()
+        .expect("failed to run binary");
+
+    std::fs::remove_file(&path).ok();
+
+    assert!(!output.status.success());
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stderr.contains("line 1"),
+        "expected line number in error, got: {stderr}"
+    );
+    // stdout should be empty — no valid lines
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.is_empty(), "expected no stdout, got: {stdout}");
+}
+
+#[test]
+fn exit_code_is_2_on_line_error() {
+    let dir = env!("CARGO_MANIFEST_DIR");
+    let path = format!("{dir}/test_exit2.txt");
+    std::fs::write(&path, "bad_line\n").unwrap();
+
+    let output = cargo_bin()
+        .arg(&path)
+        .output()
+        .expect("failed to run binary");
+
+    std::fs::remove_file(&path).ok();
+
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "expected exit code 2, got: {:?}",
+        output.status.code()
+    );
+}
+
+#[test]
+fn exit_code_is_0_on_success() {
+    let output = cargo_bin()
+        .args(["sample_input.txt", "--seed", "42"])
+        .output()
+        .expect("failed to run binary");
+
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "expected exit code 0, got: {:?}",
+        output.status.code()
+    );
+}
+
+#[test]
+fn empty_input_produces_no_output_and_exits_0() {
+    let dir = env!("CARGO_MANIFEST_DIR");
+    let path = format!("{dir}/test_empty.txt");
+    std::fs::write(&path, "\n\n").unwrap();
+
+    let output = cargo_bin()
+        .arg(&path)
+        .output()
+        .expect("failed to run binary");
+
+    std::fs::remove_file(&path).ok();
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(stdout.is_empty(), "expected no stdout, got: {stdout}");
+    assert!(stderr.is_empty(), "expected no stderr, got: {stderr}");
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "expected exit code 0, got: {:?}",
+        output.status.code()
+    );
+}
+
+#[test]
+fn invalid_seed_flag_is_silently_ignored() {
+    // --seed abc cannot be parsed as u64, so parse_flag returns None
+    // and the program runs with a random (non-seeded) RNG — no error.
+    let output = cargo_bin()
+        .args(["sample_input.txt", "--seed", "abc"])
+        .output()
+        .expect("failed to run binary");
+
+    assert!(
+        output.status.success(),
+        "bad --seed should not crash; stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert_eq!(
+        stdout.lines().count(),
+        3,
+        "should still produce 3 output lines"
+    );
+}
+
+#[test]
+fn missing_divisor_value_uses_default() {
+    // --divisor is the last arg with no value following it.
+    // parse_flag returns None, so divisor defaults to 3.
+    let output = cargo_bin()
+        .args(["sample_input.txt", "--divisor"])
+        .output()
+        .expect("failed to run binary");
+
+    assert!(
+        output.status.success(),
+        "missing --divisor value should fall back to default; stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert_eq!(
+        stdout.lines().count(),
+        3,
+        "should still produce 3 output lines"
+    );
+}
+
+#[test]
+fn all_lines_invalid_gives_empty_stdout_and_stderr_errors() {
+    let dir = env!("CARGO_MANIFEST_DIR");
+    let path = format!("{dir}/test_all_bad.txt");
+    std::fs::write(&path, "bad\nalso_bad\nstill_bad\n").unwrap();
+
+    let output = cargo_bin()
+        .arg(&path)
+        .output()
+        .expect("failed to run binary");
+
+    std::fs::remove_file(&path).ok();
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(stdout.is_empty(), "expected no stdout, got: {stdout}");
+    assert!(
+        stderr.contains("line 1"),
+        "expected line 1 error, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("line 2"),
+        "expected line 2 error, got: {stderr}"
+    );
+    assert!(
+        stderr.contains("line 3"),
+        "expected line 3 error, got: {stderr}"
+    );
+    assert!(!output.status.success());
+    assert_eq!(output.status.code(), Some(2));
+}
+
 // ─── Helpers ────────────────────────────────────────────────────────
 
 /// Parse a USD output line like "1 dollar,2 quarters,1 nickel,2 pennies" into total cents.

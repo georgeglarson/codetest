@@ -146,3 +146,65 @@ test "parseLine: float input returns error" {
     const result = parseLine(testing.allocator, "1,2.5,3");
     try testing.expectError(error.InvalidCharacter, result);
 }
+
+// --- Boundary values ---
+
+test "parseLine: i64 max value parses successfully" {
+    const result = try parseLine(testing.allocator, "9223372036854775807");
+    defer testing.allocator.free(result);
+
+    try testing.expectEqual(@as(usize, 1), result.len);
+    try testing.expectEqual(@as(i64, 9223372036854775807), result[0]);
+}
+
+test "parseLine: i64 max + 1 returns Overflow" {
+    const result = parseLine(testing.allocator, "9223372036854775808");
+    try testing.expectError(error.Overflow, result);
+}
+
+// --- Degenerate delimiters ---
+
+test "parseLine: multiple consecutive commas are skipped" {
+    const result = try parseLine(testing.allocator, "1,,,,2");
+    defer testing.allocator.free(result);
+
+    try testing.expectEqual(@as(usize, 2), result.len);
+    try testing.expectEqual(@as(i64, 1), result[0]);
+    try testing.expectEqual(@as(i64, 2), result[1]);
+}
+
+// --- Leading zeros ---
+
+test "parseLine: leading zeros parse correctly" {
+    const result = try parseLine(testing.allocator, "01,002,3");
+    defer testing.allocator.free(result);
+
+    try testing.expectEqual(@as(usize, 3), result.len);
+    try testing.expectEqual(@as(i64, 1), result[0]);
+    try testing.expectEqual(@as(i64, 2), result[1]);
+    try testing.expectEqual(@as(i64, 3), result[2]);
+}
+
+// --- Plus sign prefix ---
+
+test "parseLine: plus sign on positive number parses successfully" {
+    const result = try parseLine(testing.allocator, "+5,6,8");
+    defer testing.allocator.free(result);
+
+    try testing.expectEqual(@as(usize, 3), result.len);
+    try testing.expectEqual(@as(i64, 5), result[0]);
+    try testing.expectEqual(@as(i64, 6), result[1]);
+    try testing.expectEqual(@as(i64, 8), result[2]);
+}
+
+// --- Negative zero ---
+
+test "parseLine: negative zero parses as zero" {
+    const result = try parseLine(testing.allocator, "-0,1,3");
+    defer testing.allocator.free(result);
+
+    try testing.expectEqual(@as(usize, 3), result.len);
+    try testing.expectEqual(@as(i64, 0), result[0]);
+    try testing.expectEqual(@as(i64, 1), result[1]);
+    try testing.expectEqual(@as(i64, 3), result[2]);
+}
