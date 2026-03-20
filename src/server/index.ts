@@ -13,7 +13,17 @@ setDb(db);
 
 const app = createApp(db);
 
-app.use(morgan("[:date[iso]] :remote-addr :method :url :status :response-time[0]ms"));
+morgan.token("localtime", () => new Date().toLocaleString("en-US", { timeZone: "America/New_York", hour12: true }));
+app.use(morgan("[:localtime] :remote-addr :method :url :status :response-time[0]ms", {
+  skip: (req) => {
+    const url = req.originalUrl ?? "";
+    // Skip static assets
+    if (url.startsWith("/assets/")) return true;
+    // Skip scanner probes (wp-admin, .env, .git, php, etc.)
+    if (/\.(env|git|php|asp|cgi)|wp-|phpmyadmin|xmlrpc/i.test(url)) return true;
+    return false;
+  },
+}));
 
 // Serve static client build in production
 const clientDist = path.resolve(import.meta.dirname, "../../dist/client");
