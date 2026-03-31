@@ -1,4 +1,4 @@
-# TrueFit Code Exercises
+# Code Exercises
 
 > Also on [Codeberg](https://codeberg.org/georgelarson/codetest)
 
